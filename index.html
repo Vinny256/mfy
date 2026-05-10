@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gathuo Movies | Premium Streaming</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .hero-gradient { background: linear-gradient(to right, #000 10%, rgba(0,0,0,0.4) 50%, transparent 100%); }
+        .modal-gradient { background: linear-gradient(to t, #18181b 0%, transparent 100%); }
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+        
+        /* FIX: Prevents text overlap and ensures buttons are clickable */
+        #hero {
+            padding-top: 80px; /* Room for nav */
+            padding-bottom: 40px;
+        }
+        @media (max-width: 768px) {
+            #hero {
+                padding-top: 100px;
+                min-height: 85vh; /* Larger area on mobile */
+            }
+        }
+    </style>
+</head>
+<body class="bg-black text-white font-sans scrollbar-hide">
+
+    <nav class="flex items-center justify-between p-4 md:p-6 bg-gradient-to-b from-black via-black/70 to-transparent fixed w-full z-[100] transition-all duration-300">
+        <div class="flex items-center gap-4 md:gap-10">
+            <h1 class="text-2xl md:text-4xl font-black text-red-600 tracking-tighter cursor-pointer hover:scale-105 transition" onclick="window.location.reload()">GATHUO</h1>
+            
+            <button class="lg:hidden text-white text-xl" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="hidden lg:flex gap-8 items-center text-sm font-bold uppercase tracking-widest">
+                <button onclick="setMediaType('movie')" class="hover:text-red-500 transition border-b-2 border-transparent hover:border-red-500 pb-1">Movies</button>
+                <button onclick="setMediaType('tv')" class="hover:text-red-500 transition border-b-2 border-transparent hover:border-red-500 pb-1">TV Shows</button>
+                <div class="relative group">
+                    <button class="hover:text-red-500 transition">Genres <i class="fas fa-chevron-down text-[10px] ml-1"></i></button>
+                    <div id="genreList" class="absolute top-full left-0 bg-zinc-900 border border-zinc-800 p-4 rounded-xl grid grid-cols-2 gap-2 w-64 hidden group-hover:grid shadow-2xl">
+                    </div>
+                </div>
+                <div class="relative">
+                    <select id="yearFilter" onchange="filterByYear(this.value)" class="bg-transparent border-none outline-none cursor-pointer hover:text-red-500 font-bold uppercase pr-4">
+                        <option class="bg-zinc-900 text-white" value="">Year</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-0 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none"></i>
+                </div>
+            </div>
+        </div>
+        <div class="relative flex items-center">
+            <input id="searchInput" type="text" placeholder="Search..." class="bg-black/40 border border-zinc-700 rounded-full px-4 md:px-6 py-2 w-32 md:w-64 focus:w-48 md:focus:w-96 focus:border-red-600 transition-all outline-none backdrop-blur-md text-sm">
+            <i class="fas fa-search absolute right-4 md:right-5 text-zinc-500"></i>
+        </div>
+    </nav>
+
+    <div id="mobileMenu" class="hidden fixed inset-0 bg-black/95 z-[150] flex flex-col items-center justify-center gap-8 text-2xl font-bold uppercase lg:hidden">
+        <button onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="absolute top-8 right-8 text-4xl text-zinc-500">✕</button>
+        <button onclick="setMediaType('movie'); document.getElementById('mobileMenu').classList.add('hidden')" class="hover:text-red-600">Movies</button>
+        <button onclick="setMediaType('tv'); document.getElementById('mobileMenu').classList.add('hidden')" class="hover:text-red-600">TV Shows</button>
+        <button onclick="window.location.reload()" class="hover:text-red-600">Home</button>
+    </div>
+
+    <main id="landingPage" class="relative">
+        
+        <section id="hero" class="min-h-[80vh] md:h-[90vh] w-full bg-cover bg-center relative flex items-center px-6 md:px-12 pt-28 md:pt-0 transition-all duration-700">
+            <div class="absolute inset-0 hero-gradient"></div>
+            <div class="relative z-10 max-w-4xl w-full">
+                 <span class="bg-red-600 text-white px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-black rounded-sm mb-4 inline-block uppercase tracking-tighter italic">Trending Now</span>
+                 <h2 id="heroTitle" class="text-4xl md:text-7xl font-black mb-4 leading-tight md:leading-[0.9] tracking-tighter break-words"></h2>
+                 <div class="flex gap-4 items-center mb-4 md:mb-6 font-bold text-zinc-400 text-sm md:text-base">
+                    <span id="heroRating" class="text-green-500"></span>
+                    <span id="heroYear"></span>
+                    <span class="border border-zinc-700 px-1.5 py-0.5 md:px-2 md:py-0.5 text-[8px] md:text-[10px] rounded italic font-black uppercase">4K Ultra HD</span>
+                 </div>
+                 <p id="heroDesc" class="text-zinc-300 text-sm md:text-lg mb-6 md:mb-10 line-clamp-3 md:line-clamp-4 leading-relaxed drop-shadow-lg max-w-2xl"></p>
+                 
+                 <div class="flex flex-wrap gap-4 md:gap-6 pb-10">
+                     <button id="heroPlay" class="bg-white text-black px-8 md:px-12 py-3.5 md:py-4 rounded-md font-black hover:bg-red-600 hover:text-white transition-all text-sm md:text-lg flex items-center gap-3 shadow-xl transform active:scale-95">
+                        <i class="fas fa-play"></i> WATCH NOW
+                     </button>
+                     <button id="heroMore" class="bg-zinc-600/40 text-white px-8 md:px-12 py-3.5 md:py-4 rounded-md font-black hover:bg-zinc-600 transition backdrop-blur-xl border border-white/10 text-sm md:text-lg flex items-center gap-3 shadow-xl">
+                        <i class="fas fa-circle-info"></i> MORE INFO
+                     </button>
+                 </div>
+            </div>
+        </section>
+
+        <div class="px-6 lg:px-12 py-12 space-y-16 -mt-8 md:-mt-20 relative z-20">
+            <section>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl md:text-3xl font-black tracking-tighter uppercase">Latest Releases</h2>
+                    <div class="h-[1px] flex-grow mx-4 md:mx-8 bg-zinc-800"></div>
+                </div>
+                <div id="latestGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6"></div>
+            </section>
+
+            <section>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl md:text-3xl font-black tracking-tighter uppercase">Premium TV Series</h2>
+                    <div class="h-[1px] flex-grow mx-4 md:mx-8 bg-zinc-800"></div>
+                </div>
+                <div id="bestTVGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6"></div>
+            </section>
+        </div>
+    </main>
+
+    <div id="detailModal" class="fixed inset-0 z-[200] hidden bg-black/98 overflow-y-auto backdrop-blur-3xl p-4 md:p-12">
+        <div class="max-w-7xl mx-auto rounded-3xl overflow-hidden bg-zinc-900/50 border border-white/5 shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 md:top-8 md:right-8 z-[210] bg-zinc-800/80 hover:bg-red-600 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition shadow-xl text-lg md:text-xl">
+                <i class="fas fa-xmark"></i>
+            </button>
+            
+            <div id="modalHero" class="h-[300px] md:h-[500px] bg-cover bg-center relative">
+                <div class="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/40 to-transparent"></div>
+            </div>
+
+            <div class="p-6 md:p-16 -mt-20 md:-mt-40 relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16">
+                <div class="lg:col-span-2">
+                    <h2 id="modalTitle" class="text-4xl md:text-6xl font-black mb-6 tracking-tighter"></h2>
+                    <div class="flex flex-wrap gap-4 md:gap-6 items-center mb-8 text-zinc-400 font-bold">
+                        <span id="modalYear" class="border border-zinc-700 px-3 py-1 rounded text-sm uppercase"></span>
+                        <span id="modalRating" class="text-yellow-500"></span>
+                        <span id="modalGenres" class="text-sm"></span>
+                    </div>
+                    
+                    <p id="modalOverview" class="text-zinc-300 text-lg md:text-xl leading-relaxed mb-10 font-medium"></p>
+                    
+                    <h3 class="text-2xl font-black mb-6 italic border-l-4 border-red-600 pl-4 uppercase tracking-tighter">The Cast</h3>
+                    <div id="modalActors" class="flex gap-6 overflow-x-auto pb-6 scrollbar-hide mb-10"></div>
+
+                    <div id="tvSelectors" class="hidden bg-zinc-800/40 p-6 md:p-8 rounded-3xl border border-white/5 mb-10 shadow-inner">
+                        <h3 class="font-black text-xl mb-6 uppercase tracking-widest text-red-500 flex items-center gap-2">
+                            <i class="fas fa-list-ul"></i> Episode Selector
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4 md:gap-6">
+                            <div class="space-y-2 relative">
+                                <label class="text-[10px] uppercase font-black text-zinc-500 ml-1 tracking-widest">Season</label>
+                                <select id="seasonSelect" onchange="loadEpisodes(this.value)" class="bg-zinc-900 border border-zinc-700 p-3 md:p-4 rounded-xl w-full outline-none focus:border-red-600 appearance-none"></select>
+                                <i class="fas fa-chevron-down absolute right-4 bottom-4 text-xs text-zinc-600 pointer-events-none"></i>
+                            </div>
+                            <div class="space-y-2 relative">
+                                <label class="text-[10px] uppercase font-black text-zinc-500 ml-1 tracking-widest">Episode</label>
+                                <select id="episodeSelect" class="bg-zinc-900 border border-zinc-700 p-3 md:p-4 rounded-xl w-full outline-none focus:border-red-600 appearance-none"></select>
+                                <i class="fas fa-chevron-down absolute right-4 bottom-4 text-xs text-zinc-600 pointer-events-none"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                        <button id="finalWatchBtn" class="bg-red-600 text-white px-8 md:px-12 py-4 md:py-5 rounded-xl font-black hover:bg-red-700 transition grow text-xl md:text-2xl shadow-xl shadow-red-900/20 active:scale-95 flex items-center justify-center gap-4">
+                            <i class="fas fa-play"></i> WATCH NOW
+                        </button>
+                        <button id="trailerBtn" class="bg-zinc-100 text-black px-8 md:px-12 py-4 md:py-5 rounded-xl font-black hover:bg-white transition text-xl md:text-2xl active:scale-95 flex items-center justify-center gap-4">
+                            <i class="fas fa-clapperboard"></i> TRAILER
+                        </button>
+                    </div>
+
+                    <div class="mt-10 pt-6 border-t border-zinc-800">
+                        <button onclick="alert('Download coming soon...')" class="text-zinc-500 hover:text-white font-black uppercase text-xs tracking-widest flex items-center gap-3 transition">
+                            <i class="fas fa-download"></i> Save for offline
+                        </button>
+                    </div>
+                </div>
+
+                <div class="hidden lg:block space-y-8">
+                     <img id="modalPoster" src="" class="rounded-2xl shadow-2xl border border-white/5 w-full">
+                     <div class="bg-zinc-800/20 p-6 rounded-2xl border border-white/5 space-y-4">
+                        <div class="flex justify-between border-b border-zinc-800 pb-3">
+                            <span class="text-zinc-500 text-xs font-bold uppercase tracking-tighter">Stream Quality</span>
+                            <span class="text-xs font-black text-red-500 uppercase tracking-widest">4K HDR</span>
+                        </div>
+                        <div class="flex justify-between border-b border-zinc-800 pb-3">
+                            <span class="text-zinc-500 text-xs font-bold uppercase tracking-tighter">Status</span>
+                            <span id="modalStatus" class="text-xs font-black text-green-500 uppercase">Released</span>
+                        </div>
+                        <p class="text-[9px] text-zinc-600 text-center uppercase tracking-widest leading-relaxed pt-2">
+                            <i class="fas fa-shield-halved text-red-600/50 mr-1"></i> Gathuo Secure Encrypted Streaming
+                        </p>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="playerOverlay" class="fixed inset-0 z-[300] hidden bg-black flex flex-col items-center justify-center">
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-[310]">
+            <button onclick="closePlayer()" class="bg-zinc-900/80 backdrop-blur-md px-8 py-3 rounded-full text-white font-black hover:bg-red-600 transition flex items-center gap-3 shadow-2xl border border-white/10 uppercase text-xs tracking-widest active:scale-95">
+                <i class="fas fa-circle-xmark"></i> Close Player
+            </button>
+        </div>
+        <div id="iframeContainer" class="w-full h-full bg-black"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
