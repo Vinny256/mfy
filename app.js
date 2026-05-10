@@ -95,7 +95,7 @@ async function openDetails(id, type) {
     document.getElementById('modalTitle').innerText = data.title || data.name;
     document.getElementById('modalOverview').innerText = data.overview;
     document.getElementById('modalYear').innerText = (data.release_date || data.first_air_date || '').split('-')[0];
-    document.getElementById('modalRating').innerHTML = `<i class="fas fa-star mr-1"></i> ${data.vote_average.toFixed(1)}`;
+    document.getElementById('modalRating').innerHTML = `<i class="fas fa-star mr-1"></i> ${data.vote_average ? data.vote_average.toFixed(1) : 'N/A'}`;
     document.getElementById('modalGenres').innerText = data.genres.map(g => g.name).join(', ');
     document.getElementById('modalHero').style.backgroundImage = `url('https://image.tmdb.org/t/p/original${data.backdrop_path}')`;
     document.getElementById('modalPoster').src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
